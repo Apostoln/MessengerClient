@@ -2,8 +2,10 @@
 #define MESSENGERCLIENT_MESSENGERCLIENT_HPP
 
 #include <iostream>
+#include <thread>
 #include <cstring>
 #include <asio.hpp>
+
 
 using namespace asio;
 
@@ -14,10 +16,16 @@ class MessengerClient {
         ip::tcp::socket socket;
         ip::tcp::endpoint serverEndPoint;
 
+        std::thread consoleReadThread;
+        std::thread consoleWriteThread;
+
     public:
         MessengerClient(std::string serverIp, size_t serverPort, size_t clientPort);
 
-        void run(const std::string& message);
+        void run();
+        void connect();
+        void consoleRead();
+        void consoleWrite();
 };
 
 

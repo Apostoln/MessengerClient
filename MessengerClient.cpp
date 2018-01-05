@@ -1,4 +1,7 @@
+#include <string>
+
 #include "MessengerClient.hpp"
+#include "ProtocolMessage.hpp"
 
 MessengerClient::MessengerClient(std::string serverIp, size_t serverPort, size_t clientPort)
     : serverEndPoint(ip::address::from_string(serverIp), serverPort),
@@ -6,16 +9,55 @@ MessengerClient::MessengerClient(std::string serverIp, size_t serverPort, size_t
       socket(ioService, clientEndPoint)
 {}
 
-void MessengerClient::run(const std::string& message) {
-    socket.connect(serverEndPoint);
-    socket.write_some(buffer(message.c_str(), message.length()));
-    std::cout << "Send " << socket.remote_endpoint() << " >(" << message.length() << ") " << message << std::endl;
+void MessengerClient::run() {
+    connect();
 
-    while(true) {
-        const int BUFFER_SIZE = 1024;
-        char data[BUFFER_SIZE] = {0};
-        size_t messageLength = socket.read_some(buffer(data));
-        std::cout << "Echo " << socket.remote_endpoint() << " <(" << strlen(data) << ") " << data << std::endl;
-        //socket.close();
+    consoleReadThread = std::thread(&MessengerClient::consoleRead, this);
+    consoleWriteThread = std::thread(&MessengerClient::consoleWrite, this);
+    consoleReadThread.join();
+    consoleWriteThread.join();
+}
+
+void MessengerClient::connect() {
+    std::string startMessage = "#START";
+    socket.connect(serverEndPoint);
+    socket.write_some(buffer(startMessage.c_str(), startMessage.length()));
+    std::cout << socket.remote_endpoint() << " >> " << startMessage << std::endl;
+
+    const int BUFFER_SIZE = 1024;
+    char data[BUFFER_SIZE] = {0};
+    size_t messageLength = socket.read_some(buffer(data));
+    if (0 != messageLength) {
+        std::cout << socket.remote_endpoint() << " << " << data << std::endl;
+        if (ProtocolMessage::OK == data) {
+            std::cout << "Connection successful." << std::endl;
+        } else {
+            std::cout << "Connection failed." << std::endl;
+            std::exit(1);
+        }
     }
 }
+
+void MessengerClient::consoleRead() {
+    const int BUFFER_SIZE = 1024;
+
+    while (true) {
+        char data[BUFFER_SIZE] = {0};
+        std::cin.getline(data, BUFFER_SIZE);
+        socket.write_some(buffer(data));
+        //std::cout << socket.remote_endpoint() << " > "  << data << std::endl;
+    }
+}
+
+void MessengerClient::consoleWrite() {
+    const int BUFFER_SIZE = 1024;
+
+    while(true) {
+        char data[BUFFER_SIZE] = {0};
+        size_t messageLength = socket.read_some(buffer(data));
+        if (0 != messageLength) {
+            std::cout << socket.remote_endpoint() << " < " << data << std::endl;
+        }
+    }
+}
+
