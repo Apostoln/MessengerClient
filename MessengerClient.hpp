@@ -19,6 +19,8 @@ class MessengerClient {
         std::thread consoleReadThread;
         std::thread consoleWriteThread;
 
+        static const unsigned short BUFFER_SIZE = 1024;
+
     public:
         MessengerClient(std::string serverIp, size_t serverPort, size_t clientPort);
 

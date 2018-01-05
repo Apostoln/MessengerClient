@@ -24,7 +24,7 @@ void MessengerClient::connect() {
     socket.write_some(buffer(startMessage.c_str(), startMessage.length()));
     std::cout << socket.remote_endpoint() << " >> " << startMessage << std::endl;
 
-    const int BUFFER_SIZE = 1024;
+
     char data[BUFFER_SIZE] = {0};
     size_t messageLength = socket.read_some(buffer(data));
     if (0 != messageLength) {
@@ -39,19 +39,15 @@ void MessengerClient::connect() {
 }
 
 void MessengerClient::consoleRead() {
-    const int BUFFER_SIZE = 1024;
-
     while (true) {
         char data[BUFFER_SIZE] = {0};
         std::cin.getline(data, BUFFER_SIZE);
         socket.write_some(buffer(data));
-        //std::cout << socket.remote_endpoint() << " > "  << data << std::endl;
+        std::cout << socket.remote_endpoint() << " > "  << data << std::endl;
     }
 }
 
 void MessengerClient::consoleWrite() {
-    const int BUFFER_SIZE = 1024;
-
     while(true) {
         char data[BUFFER_SIZE] = {0};
         size_t messageLength = socket.read_some(buffer(data));
