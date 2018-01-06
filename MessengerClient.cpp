@@ -19,7 +19,7 @@ void MessengerClient::run() {
 }
 
 void MessengerClient::connect() {
-    std::string startMessage = "#START";
+    std::string startMessage = protocolString[ProtocolMessage::START];
     socket.connect(serverEndPoint);
     socket.write_some(buffer(startMessage.c_str(), startMessage.length()));
     std::cout << socket.remote_endpoint() << " >> " << startMessage << std::endl;
@@ -55,5 +55,12 @@ void MessengerClient::consoleWrite() {
             std::cout << socket.remote_endpoint() << " < " << data << std::endl;
         }
     }
+}
+
+bool MessengerClient::isProtocolMessage(const char* msg) {
+    if ( '#' == msg[0]) {
+        return true;
+    }
+    return false;
 }
 

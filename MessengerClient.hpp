@@ -28,6 +28,10 @@ class MessengerClient {
         void connect();
         void consoleRead();
         void consoleWrite();
+
+        bool isProtocolMessage(const char*);
+
+
 };
 
 
