@@ -44,9 +44,11 @@ void MessengerClient::consoleRead() {
         char data[BUFFER_SIZE] = {0};
         std::cin.getline(data, BUFFER_SIZE);
         if(isProtocolMessage(data)) {
+            std::cout << "proto" << std::endl;
             handleProtocol(fromString(data));
         }
         else {
+            std::cout << "msg" << std::endl;
             socket.write_some(buffer(data));
             std::cout << socket.remote_endpoint() << " > " << data << std::endl;
         }
@@ -56,10 +58,13 @@ void MessengerClient::consoleRead() {
 void MessengerClient::consoleWrite() {
     while(true) {
         char data[BUFFER_SIZE] = {0};
-        //std::lock_guard<std::mutex> closingGuard(socketReadMutex);
-        size_t messageLength = socket.read_some(buffer(data));
-        if (0 != messageLength) {
-            std::cout << socket.remote_endpoint() << " < " << data << std::endl;
+        std::lock_guard<std::mutex> closingGuard(socketReadMutex);
+        if (socket.available()) {
+            size_t messageLength = socket.read_some(buffer(data));
+
+            if (0 != messageLength) {
+                std::cout << socket.remote_endpoint() << " < " << data << std::endl;
+            }
         }
     }
 }
@@ -72,8 +77,10 @@ bool MessengerClient::isProtocolMessage(const char* msg) {
 }
 
 void MessengerClient::closeConnection() {
-    //std::lock_guard<std::mutex> closingGuard(socketReadMutex);
+    std::cout << "closeConnection" << std::endl;
+    std::lock_guard<std::mutex> closingGuard(socketReadMutex);
     std::string message = protocolString[ProtocolMessage::CANCEL];
+
     socket.write_some(buffer(message));
     std::cout << socket.remote_endpoint() << " >> " << message << std::endl;
 
