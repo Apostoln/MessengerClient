@@ -5,9 +5,12 @@
 #include <thread>
 #include <cstring>
 #include <asio.hpp>
+#include <mutex>
 
 
 using namespace asio;
+
+enum class ProtocolMessage;
 
 class MessengerClient {
     private:
@@ -18,6 +21,9 @@ class MessengerClient {
 
         std::thread consoleReadThread;
         std::thread consoleWriteThread;
+
+        std::mutex socketReadMutex;
+        std::mutex socketWriteMutex;
 
         static const unsigned short BUFFER_SIZE = 1024;
 
@@ -31,6 +37,9 @@ class MessengerClient {
 
         bool isProtocolMessage(const char*);
 
+        void closeConnection();
+
+        void handleProtocol(ProtocolMessage);
 
 };
 
