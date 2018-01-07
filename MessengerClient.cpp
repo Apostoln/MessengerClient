@@ -108,6 +108,10 @@ void MessengerClient::handleProtocol(ProtocolMessage msg) {
             registration();
             break;
         }
+        case ProtocolMessage::LOGIN: {
+            login();
+            break;
+        }
         default: {
             break;
         }
@@ -149,6 +153,47 @@ void MessengerClient::registration() {
                 std::cout << "Registration successful" << std::endl;
             } else {
                 std::exit(2);
+            }
+        }
+    }
+}
+
+void MessengerClient::login() {
+    std::cout << "login" << std::endl;
+    std::lock_guard<std::mutex> closingGuard(socketReadMutex);
+    std::string message = protocolString[ProtocolMessage::LOGIN];
+
+    socket.write_some(buffer(message));
+    std::cout << socket.remote_endpoint() << " >> " << message << std::endl;
+
+    {
+        char data[BUFFER_SIZE] = {0};
+        size_t messageLength = socket.read_some(buffer(data));
+        if (0 != messageLength) {
+            std::cout << socket.remote_endpoint() << " << " << data << std::endl;
+            if (ProtocolMessage::OK == data) {
+                std::cout << "Login request accepted, enter login password" << std::endl;
+            } else {
+                std::exit(2);
+            }
+        }
+
+        char dataLoginPass[BUFFER_SIZE] = {0};
+        std::cin.getline(dataLoginPass, BUFFER_SIZE);
+        socket.write_some(buffer(dataLoginPass));
+        std::cout << socket.remote_endpoint() << " > " << dataLoginPass << std::endl;
+    }
+
+    {
+        char data[BUFFER_SIZE] = {0};
+        size_t messageLength = socket.read_some(buffer(data));
+        if (0 != messageLength) {
+            std::cout << socket.remote_endpoint() << " << " << data << std::endl;
+            if (ProtocolMessage::OK == data) {
+                std::cout << "Login successful" << std::endl;
+            } else {
+                std::cout << "Login failed, try again";
+                return;
             }
         }
     }

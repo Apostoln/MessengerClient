@@ -42,7 +42,7 @@ class MessengerClient {
         void handleProtocol(ProtocolMessage);
 
         void registration();
-
+        void login();
 };
 
 
