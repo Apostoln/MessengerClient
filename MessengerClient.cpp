@@ -22,8 +22,8 @@ void MessengerClient::connect() {
     std::string startMessage = protocolString[ProtocolMessage::START];
     socket.connect(serverEndPoint);
     socket.write_some(buffer(startMessage.c_str(), startMessage.length()));
-    std::cout << socket.remote_endpoint() << " >> " << startMessage << std::endl;
 
+    std::cout << socket.remote_endpoint() << " >> " << startMessage << std::endl;
 
     char data[BUFFER_SIZE] = {0};
     size_t messageLength = socket.read_some(buffer(data));
