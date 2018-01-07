@@ -96,7 +96,6 @@ void MessengerClient::closeConnection() {
             std::exit(1);
         }
     }
-
 }
 
 void MessengerClient::handleProtocol(ProtocolMessage msg) {
@@ -105,8 +104,52 @@ void MessengerClient::handleProtocol(ProtocolMessage msg) {
             closeConnection();
             break;
         }
+        case ProtocolMessage::REG: {
+            registration();
+            break;
+        }
         default: {
             break;
+        }
+    }
+}
+
+void MessengerClient::registration() {
+    std::cout << "registration" << std::endl;
+    std::lock_guard<std::mutex> closingGuard(socketReadMutex);
+    std::string message = protocolString[ProtocolMessage::REG];
+
+    socket.write_some(buffer(message));
+    std::cout << socket.remote_endpoint() << " >> " << message << std::endl;
+
+    {
+        char data[BUFFER_SIZE] = {0};
+        size_t messageLength = socket.read_some(buffer(data));
+        if (0 != messageLength) {
+            std::cout << socket.remote_endpoint() << " << " << data << std::endl;
+            if (ProtocolMessage::OK == data) {
+                std::cout << "Registration request accepted, enter login password" << std::endl;
+            } else {
+                std::exit(2);
+            }
+        }
+
+        char dataLoginPass[BUFFER_SIZE] = {0};
+        std::cin.getline(dataLoginPass, BUFFER_SIZE);
+        socket.write_some(buffer(dataLoginPass));
+        std::cout << socket.remote_endpoint() << " > " << dataLoginPass << std::endl;
+    }
+
+    {
+        char data[BUFFER_SIZE] = {0};
+        size_t messageLength = socket.read_some(buffer(data));
+        if (0 != messageLength) {
+            std::cout << socket.remote_endpoint() << " << " << data << std::endl;
+            if (ProtocolMessage::OK == data) {
+                std::cout << "Registration successful" << std::endl;
+            } else {
+                std::exit(2);
+            }
         }
     }
 }

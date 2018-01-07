@@ -41,6 +41,8 @@ class MessengerClient {
 
         void handleProtocol(ProtocolMessage);
 
+        void registration();
+
 };
 
 
