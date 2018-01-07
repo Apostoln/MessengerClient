@@ -65,6 +65,11 @@ void MessengerClient::consoleWrite() {
             if (0 != messageLength) {
                 std::cout << socket.remote_endpoint() << " < " << data << std::endl;
             }
+            if (isProtocolMessage(data)) {
+                if (ProtocolMessage::UNAUTH == fromString(data) ) {
+                    unauth();
+                }
+            }
         }
     }
 }
@@ -192,9 +197,13 @@ void MessengerClient::login() {
             if (ProtocolMessage::OK == data) {
                 std::cout << "Login successful" << std::endl;
             } else {
-                std::cout << "Login failed, try again";
+                std::cout << "Login failed, try again" << std::endl;
                 return;
             }
         }
     }
+}
+
+void MessengerClient::unauth() {
+    std::cout << "You are not authorized. Please login or register" << std::endl;
 }

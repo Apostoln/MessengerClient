@@ -43,6 +43,7 @@ class MessengerClient {
 
         void registration();
         void login();
+        void unauth();
 };
 
 
