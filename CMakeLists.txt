@@ -15,7 +15,7 @@ target_include_directories(argparse INTERFACE lib/argparse )
 
 
 include_directories(src)
-set(SOURCE_FILES src/main.cpp src/MessengerClient.cpp src/MessengerClient.hpp src/ProtocolMessage.hpp src/ProtocolMessage.cpp.cpp)
+set(SOURCE_FILES src/main.cpp src/MessengerClient.cpp src/MessengerClient.hpp src/ProtocolMessage.hpp src/ProtocolMessage.cpp.cpp src/utils.hpp)
 add_executable(MessengerClient ${SOURCE_FILES})
 
 target_link_libraries(${PROJECT_NAME} asio easyloggingpp argparse pthread)
