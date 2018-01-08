@@ -1,10 +1,10 @@
 #include <argparse.hpp>
+#include <easylogging++.h>
 
 #include "MessengerClient.hpp"
 #include "utils.hpp"
 
-static const char* SERVER_IP = "127.0.0.1";
-static int SERVER_PORT = 1234;
+INITIALIZE_EASYLOGGINGPP //crutch for logger
 
 int main(int argc, const char* argv[]) {
     ArgumentParser parser;
@@ -23,6 +23,7 @@ int main(int argc, const char* argv[]) {
     auto isConsoleOut = !parser.retrieve<std::string>("cout").empty();
     auto loggingFile = parser.retrieve<std::string>("fileLogger");
 
+    configureLogger(isConsoleOut, loggingFile, logLevel);
 
     MessengerClient client(serverIp, serverPort, clientPort);
     client.run();
